@@ -251,7 +251,7 @@ class generic_demod(gr.hier_block2):
 
 	gr.hier_block2.__init__(self, "generic_demod",
 				gr.io_signature(1, 1, gr.sizeof_gr_complex), # Input signature
-				gr.io_signature(1, 4, gr.sizeof_char,  gr.sizeof_float, gr.sizeof_float, gr.sizeof_float))       # Output signature
+				gr.io_signaturev(4, 4, (gr.sizeof_char,  gr.sizeof_float, gr.sizeof_float, gr.sizeof_float)))       # Output signature
 
         self._constellation = constellation
         self._samples_per_symbol = samples_per_symbol

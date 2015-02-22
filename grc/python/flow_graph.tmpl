@@ -72,6 +72,7 @@ class $(class_name)(grc_wxgui.top_block_gui):
         _icon_path = "$icon.get_filename()"
         self.SetIcon(wx.Icon(_icon_path, wx.BITMAP_TYPE_ANY))
     #end if
+        self.Start(start=False)
 #elif $generate_options == 'qt_gui'
 from distutils.version import StrictVersion
 class $(class_name)(gr.top_block, Qt.QWidget):
