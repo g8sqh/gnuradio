@@ -137,6 +137,10 @@ namespace gr {
     void
     simple_correlator_impl::update_avg(float x)
     {
+      /* avg_period rolling average, computed when searching
+       or during the sync word. Both cases have ~equal 0 and 1s 
+      NB sync word is 64 bits, AVG_PERIOD is 512 and oversample is 8
+      so we use the average for the sync word only (512 = 64*8) */
       d_accum -= d_avgbuf[d_avbi];
       d_avgbuf[d_avbi] = x;
       d_accum += x;
