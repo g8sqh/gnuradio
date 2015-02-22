@@ -251,7 +251,7 @@ class generic_demod(gr.hier_block2):
 
 	gr.hier_block2.__init__(self, "generic_demod",
 				gr.io_signature(1, 1, gr.sizeof_gr_complex), # Input signature
-				gr.io_signature(1, 1, gr.sizeof_char))       # Output signature
+				gr.io_signature(1, 4, gr.sizeof_char,  gr.sizeof_float, gr.sizeof_float, gr.sizeof_float))       # Output signature
 
         self._constellation = constellation
         self._samples_per_symbol = samples_per_symbol
@@ -318,8 +318,11 @@ class generic_demod(gr.hier_block2):
             self._blocks.append(self.diffdec)
         if self.pre_diff_code:
             self._blocks.append(self.symbol_mapper)
-        self._blocks += [self.unpack, self]
+        self._blocks += [self.unpack, (self,0)]
         self.connect(*self._blocks)
+
+        for i in range(1,4):
+            self.connect((self.time_recov, i), (self,i))
 
     def samples_per_symbol(self):
         return self._samples_per_symbol

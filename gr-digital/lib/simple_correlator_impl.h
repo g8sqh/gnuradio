@@ -48,7 +48,7 @@ namespace gr {
       int            d_bbi;			// bitbuf index
 
       static const int AVG_PERIOD = 512;	// must be power of 2 (for freq offset correction)
-      int   d_avbi;
+      int   d_avbi;                             // averaging buffer index
       float d_avgbuf[AVG_PERIOD];
       float d_avg;
       float d_accum;

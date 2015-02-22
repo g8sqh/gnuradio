@@ -105,6 +105,12 @@
     </option>
   </param>
   <param>
+    <name>Timing Outputs</name>
+    <key>extra_outs</key>
+    <value>0</value>
+    <type>int</type>
+  </param>
+  <param>
     <name>Verbose</name>
     <key>verbose</key>
     <value>False</value>
@@ -141,5 +147,10 @@
   <source>
     <name>out</name>
     <type>byte</type>
+  </source>
+  <source>
+    <name>extra</name>
+    <type>float</type>
+    <nports>$extra_outs</nports>
   </source>
 </block>
