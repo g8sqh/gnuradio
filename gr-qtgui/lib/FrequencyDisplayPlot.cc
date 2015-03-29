@@ -90,7 +90,7 @@ FrequencyDisplayPlot::FrequencyDisplayPlot(int nplots, QWidget* parent)
   d_start_frequency = -1;
   d_stop_frequency = 1;
 
-  d_numPoints = 1024;
+  d_numPoints = 0;
   d_min_fft_data = new double[d_numPoints];
   d_max_fft_data = new double[d_numPoints];
   d_xdata = new double[d_numPoints];
@@ -287,7 +287,6 @@ FrequencyDisplayPlot::setFrequencyRange(const double centerfreq,
   else
     startFreq = (centerfreq - bandwidth/2.0f) / units;
 
-
   d_xdata_multiplier = units;
 
   bool reset = false;
@@ -396,10 +395,10 @@ FrequencyDisplayPlot::plotNewData(const std::vector<double*> dataPoints,
 
 	for(int64_t point = 0; point < _npoints_in; point++) {
 	  if(dataPoints[n][point] < d_min_fft_data[point]) {
-	    d_min_fft_data[point] = dataPoints[n][point];
+	    d_min_fft_data[point] = dataPoints[n][point+_in_index];
 	  }
 	  if(dataPoints[n][point] > d_max_fft_data[point]) {
-	    d_max_fft_data[point] = dataPoints[n][point];
+	    d_max_fft_data[point] = dataPoints[n][point+_in_index];
 	  }
 
 	  // Find overall top and bottom values in plot.
