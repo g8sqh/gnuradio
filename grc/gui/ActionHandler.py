@@ -108,7 +108,7 @@ class ActionHandler:
     def _handle_action(self, action):
         #print action
         ##################################################
-        # Initalize/Quit
+        # Initialize/Quit
         ##################################################
         if action == Actions.APPLICATION_INITIALIZE:
             for action in Actions.get_all_actions(): action.set_sensitive(False) #set all actions disabled
@@ -129,7 +129,7 @@ class ActionHandler:
                 Actions.XML_PARSER_ERRORS_DISPLAY.set_sensitive(True)
 
             if not self.init_file_paths:
-                self.init_file_paths = Preferences.files_open()
+                self.init_file_paths = filter(os.path.exists, Preferences.files_open())
             if not self.init_file_paths: self.init_file_paths = ['']
             for file_path in self.init_file_paths:
                 if file_path: self.main_window.new_page(file_path) #load pages from file paths
@@ -407,16 +407,22 @@ class ActionHandler:
         elif action == Actions.BLOCK_PARAM_MODIFY:
             selected_block = self.get_flow_graph().get_selected_block()
             if selected_block:
-                if PropsDialog(selected_block).run():
-                    #save the new state
-                    self.get_flow_graph().update()
-                    self.get_page().get_state_cache().save_new_state(self.get_flow_graph().export_data())
-                    self.get_page().set_saved(False)
-                else:
-                    #restore the current state
-                    n = self.get_page().get_state_cache().get_current_state()
-                    self.get_flow_graph().import_data(n)
-                    self.get_flow_graph().update()
+                dialog = PropsDialog(selected_block)
+                response = gtk.RESPONSE_APPLY
+                while response == gtk.RESPONSE_APPLY:  # do while construct: rerun the dialog if Apply was hit
+                    response = dialog.run()
+                    if response == gtk.RESPONSE_APPLY:
+                        self.get_flow_graph().update()
+                        Actions.ELEMENT_SELECT()  # empty action, that updates the main window and flowgraph
+                    elif response == gtk.RESPONSE_ACCEPT:
+                        self.get_flow_graph().update()
+                        self.get_page().get_state_cache().save_new_state(self.get_flow_graph().export_data())
+                        self.get_page().set_saved(False)
+                    else:  # restore the current state
+                        n = self.get_page().get_state_cache().get_current_state()
+                        self.get_flow_graph().import_data(n)
+                        self.get_flow_graph().update()
+                dialog.destroy()
         ##################################################
         # View Parser Errors
         ##################################################
