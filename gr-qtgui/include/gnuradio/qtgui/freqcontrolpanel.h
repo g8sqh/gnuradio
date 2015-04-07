@@ -20,8 +20,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef TIME_CONTROL_PANEL_H
-#define TIME_CONTROL_PANEL_H
+#ifndef FREQ_CONTROL_PANEL_H
+#define FREQ_CONTROL_PANEL_H
 
 #include <QtGui/QtGui>
 #include <vector>
@@ -32,54 +32,76 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include <gnuradio/qtgui/displayform.h>
-#include <gnuradio/qtgui/timedisplayform.h>
+#include <gnuradio/qtgui/freqdisplayform.h>
 
-class TimeControlPanel : public QVBoxLayout
+class FreqControlPanel : public QVBoxLayout
 {
   Q_OBJECT
 
 public:
-  TimeControlPanel(TimeDisplayForm *form);
-  ~TimeControlPanel();
+  FreqControlPanel(FreqDisplayForm *form);
+  ~FreqControlPanel();
 
 public slots:
-  void toggleAutoScale(bool en);
+  void notifyAvgSlider(int val);
   void toggleGrid(bool en);
+  void toggleMaxHold(bool en);
+  void toggleMinHold(bool en);
+
+  void toggleFFTSize(int val);
+  void toggleFFTWindow(const gr::filter::firdes::win_type win);
+
   void toggleTriggerMode(gr::qtgui::trigger_mode mode);
-  void toggleTriggerSlope(gr::qtgui::trigger_slope slope);
+
+signals:
+  void signalAvgSlider(float val);
+  void signalAvg(bool en);
 
 private:
-  TimeDisplayForm *d_parent;
-  QGroupBox *d_axes_box;
-  QGroupBox *d_trigger_box;
-  QGroupBox *d_extras_box;
+  FreqDisplayForm *d_parent;
 
+  QGroupBox *d_trace_box;
+  QVBoxLayout *d_trace_layout;
+  QCheckBox *d_maxhold_check;
+  QCheckBox *d_minhold_check;
+
+  QHBoxLayout *d_avg_layout;
+  QLabel *d_avg_label;
+  QSlider *d_avg_slider;
+
+  QGroupBox *d_axes_box;
   QVBoxLayout *d_axes_layout;
-  QHBoxLayout *d_yoff_layout;
+
+  QCheckBox *d_grid_check;
   QHBoxLayout *d_yrange_layout;
-  QHBoxLayout *d_xmax_layout;
+  QLabel *d_yrange_label;
+  QPushButton *d_yrange_plus;
+  QPushButton *d_yrange_minus;
+
+  QHBoxLayout *d_ymin_layout;
+  QLabel *d_ymin_label;
+  QPushButton *d_ymin_plus;
+  QPushButton *d_ymin_minus;
+
+  QPushButton *d_autoscale_button;
+
+  QGroupBox *d_fft_box;
+  QVBoxLayout *d_fft_layout;
+  QComboBox *d_fft_size_combo;
+  QComboBox *d_fft_win_combo;
+
+  int d_slider_max, d_slider_min, d_slider_step;
+
+  QGroupBox *d_trigger_box;
   QVBoxLayout *d_trigger_layout;
   QHBoxLayout *d_trigger_level_layout;
-  QHBoxLayout *d_trigger_delay_layout;
-  QVBoxLayout *d_extras_layout;
-
-  QLabel *d_yoff_label;
-  QLabel *d_yrange_label;
-  QLabel *d_xmax_label;
   QLabel *d_trigger_level_label;
-  QLabel *d_trigger_delay_label;
-
-  QCheckBox *d_autoscale_check;
-  QCheckBox *d_grid_check;
-  QPushButton *d_yoff_plus, *d_yoff_minus;
-  QPushButton *d_yrange_plus, *d_yrange_minus;
-  QPushButton *d_xmax_plus, *d_xmax_minus;
   QComboBox *d_trigger_mode_combo;
-  QComboBox *d_trigger_slope_combo;
   QPushButton *d_trigger_level_plus, *d_trigger_level_minus;
-  QPushButton *d_trigger_delay_plus, *d_trigger_delay_minus;
-  QPushButton *d_autoscale_button;
+
+  QGroupBox *d_extras_box;
+  QVBoxLayout *d_extras_layout;
   QPushButton *d_stop_button;
 };
 
-#endif /* TIME_CONTROL_PANEL_H */
+#endif /* FREQ_CONTROL_PANEL_H */

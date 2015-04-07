@@ -37,6 +37,13 @@ TimeDisplayForm::TimeDisplayForm(int nplots, QWidget* parent)
   d_semilogy = false;
   d_current_units = 1;
 
+  d_trig_mode = gr::qtgui::TRIG_MODE_FREE;
+  d_trig_slope = gr::qtgui::TRIG_SLOPE_POS;
+  d_trig_level = 0;
+  d_trig_delay = 0;
+  d_trig_channel = 0;
+  d_trig_tag_key = "";
+
   d_int_validator = new QIntValidator(this);
   d_int_validator->setBottom(0);
 
@@ -308,6 +315,13 @@ TimeDisplayForm::autoScale(bool en)
 }
 
 void
+TimeDisplayForm::autoScaleShot()
+{
+  getPlot()->setAutoScaleShot();
+  emit signalReplot();
+}
+
+void
 TimeDisplayForm::setSemilogx(bool en)
 {
   d_semilogx = en;
@@ -375,7 +389,7 @@ TimeDisplayForm::updateTrigger(gr::qtgui::trigger_mode mode)
   }
 
   // if tag mode, popup tag key box to set
-  if(d_trig_mode == gr::qtgui::TRIG_MODE_TAG)
+  if((d_trig_tag_key == "") && (d_trig_mode == gr::qtgui::TRIG_MODE_TAG))
     d_tr_tag_key_act->activate(QAction::Trigger);
 
   emit signalReplot();

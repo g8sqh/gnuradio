@@ -169,7 +169,8 @@ class PropsDialog(gtk.Dialog):
                     if param.get_hide() == 'all':
                         continue
                     box_all_valid = box_all_valid and param.is_valid()
-                    vbox.pack_start(param.get_input(self._handle_changed, self._activate_apply), False)
+                    input_widget = param.get_input(self._handle_changed, self._activate_apply)
+                    vbox.pack_start(input_widget, input_widget.expand)
                 label.set_markup(Utils.parse_template(TAB_LABEL_MARKUP_TMPL, valid=box_all_valid, tab=tab))
                 #show params box with new params
                 vbox.show_all()
@@ -191,13 +192,16 @@ class PropsDialog(gtk.Dialog):
         Returns:
             false to forward the keypress
         """
-        if event.keyval == gtk.keysyms.Return and event.state & gtk.gdk.CONTROL_MASK == 0:
+        if (event.keyval == gtk.keysyms.Return and
+            event.state & gtk.gdk.CONTROL_MASK == 0 and
+            not isinstance(widget.get_focus(), gtk.TextView)
+        ):
             self.response(gtk.RESPONSE_ACCEPT)
             return True  # handled here
         return False  # forward the keypress
 
     def _handle_response(self, widget, response):
-        if response == gtk.RESPONSE_APPLY:
+        if response in (gtk.RESPONSE_APPLY, gtk.RESPONSE_ACCEPT):
             for tab, label, vbox in self._params_boxes:
                 vbox.forall(lambda c: c.apply_pending_changes())
             self.set_response_sensitive(gtk.RESPONSE_APPLY, False)
