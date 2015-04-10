@@ -224,6 +224,11 @@ class generic_demod(gr.hier_block2):
 
     The input is the complex modulated signal at baseband.
     The output is a stream of bits packed 1 bit per byte (LSB)
+    Extra outputs (all float)
+      clock error
+      clock fractional filter change rate
+      clock selected filter
+      symbol phase
 
     Args:
         constellation: determines the modulation type (gnuradio.digital.digital_constellation)
@@ -251,7 +256,7 @@ class generic_demod(gr.hier_block2):
 
 	gr.hier_block2.__init__(self, "generic_demod",
 				gr.io_signature(1, 1, gr.sizeof_gr_complex), # Input signature
-				gr.io_signaturev(4, 4, (gr.sizeof_char,  gr.sizeof_float, gr.sizeof_float, gr.sizeof_float)))       # Output signature
+				gr.io_signaturev(5, 5, (gr.sizeof_char,  gr.sizeof_float, gr.sizeof_float, gr.sizeof_float, gr.sizeof_float)))       # Output signature
 
         self._constellation = constellation
         self._samples_per_symbol = samples_per_symbol
@@ -321,9 +326,12 @@ class generic_demod(gr.hier_block2):
         self._blocks += [self.unpack, (self,0)]
         self.connect(*self._blocks)
 
+        # 
         for i in range(1,4):
             self.connect((self.time_recov, i), (self,i))
-
+            
+        self.connect((self.receiver, 2), (self,4))
+        
     def samples_per_symbol(self):
         return self._samples_per_symbol
 
