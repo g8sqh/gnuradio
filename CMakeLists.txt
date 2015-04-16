@@ -1,4 +1,4 @@
-# Copyright 2010-2012,2014 Free Software Foundation, Inc.
+# Copyright 2010-2015 Free Software Foundation, Inc.
 #
 # This file is part of GNU Radio
 #
@@ -46,7 +46,7 @@ message(STATUS "Build type set to ${CMAKE_BUILD_TYPE}.")
 # Set the version information here
 set(VERSION_INFO_MAJOR_VERSION 3)
 set(VERSION_INFO_API_COMPAT    7)
-set(VERSION_INFO_MINOR_VERSION 7)
+set(VERSION_INFO_MINOR_VERSION 8)
 set(VERSION_INFO_MAINT_VERSION git)
 include(GrVersion) #setup version info
 
@@ -409,6 +409,14 @@ add_subdirectory(gr-zeromq)
 if(ENABLE_GR_CTRLPORT)
   set(GR_CTRLPORT True)
   add_definitions(-DGR_CTRLPORT)
+
+  if(CTRLPORT_BACKENDS GREATER 0)
+    set(GR_RPCSERVER_ENABLED True)
+
+    if(THRIFT_FOUND)
+      set(GR_RPCSERVER_THRIFT True)
+    endif(THRIFT_FOUND)
+  endif(CTRLPORT_BACKENDS GREATER 0)
 endif(ENABLE_GR_CTRLPORT)
 
 # Install our Cmake modules into $prefix/lib/cmake/gnuradio

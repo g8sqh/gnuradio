@@ -1,4 +1,4 @@
-# Copyright 2011-2014 Free Software Foundation, Inc.
+# Copyright 2011-2015 Free Software Foundation, Inc.
 #
 # This file is part of GNU Radio
 #
@@ -42,6 +42,7 @@ install(FILES
     constellation_decoder_cb.h
     constellation_receiver_cb.h
     constellation_soft_decoder_cf.h
+    corr_est_cc.h
     correlate_access_code_bb.h
     correlate_access_code_tag_bb.h
     correlate_access_code_bb_ts.h
@@ -69,9 +70,11 @@ install(FILES
     lms_dd_equalizer_cc.h
     map_bb.h
     metric_type.h
+    modulate_vector.h
     mpsk_receiver_cc.h
     mpsk_snr_est.h
     mpsk_snr_est_cc.h
+    msk_timing_recovery_cc.h
     ofdm_carrier_allocator_cvc.h
     ofdm_chanest_vcvc.h
     ofdm_cyclic_prefixer.h
