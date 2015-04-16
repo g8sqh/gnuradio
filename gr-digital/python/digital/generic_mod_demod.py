@@ -141,17 +141,40 @@ class generic_mod(gr.hier_block2):
 
         self.chunks2symbols = digital.chunks_to_symbols_bc(self._constellation.points())
 
-        # pulse shaping filter
-        nfilts = 32
-        ntaps = nfilts * 11 * int(self._samples_per_symbol)    # make nfilts filters of ntaps each
-        self.rrc_taps = filter.firdes.root_raised_cosine(
-            nfilts,          # gain
-            nfilts,          # sampling rate based on 32 filters in resampler
-            1.0,             # symbol rate
-            self._excess_bw, # excess bandwidth (roll-off factor)
-            ntaps)
-        self.rrc_filter = filter.pfb_arb_resampler_ccf(self._samples_per_symbol,
-                                                       self.rrc_taps)
+        if False:
+            # pulse shaping filter
+            nfilts = 32
+            ntaps = nfilts * 11 * int(self._samples_per_symbol)    # make nfilts filters of ntaps each
+            self.rrc_taps = filter.firdes.root_raised_cosine(
+                nfilts,          # gain
+                nfilts,          # sampling rate based on 32 filters in resampler
+                1.0,             # symbol rate
+                self._excess_bw, # excess bandwidth (roll-off factor)
+                ntaps)
+            self.rrc_filter = filter.pfb_arb_resampler_ccf(self._samples_per_symbol,        
+                                                           self.rrc_taps)
+        else:
+            sps = int(samples_per_symbol)
+            # OK, an 11 symbol filter would do, so scale for sps samples per symbol
+            # and then create nfilts=sps of them - that's what pfb_interpolator needs
+
+            nfilts = sps
+            f_len = 51
+            ntaps = nfilts * f_len *1    # make nfilts filters of 11*sps each
+
+            self.rrc_taps = filter.firdes.root_raised_cosine(
+                nfilts,          # gain
+                nfilts,          # sampling rate based on sps filters in resampler
+                1.0,             # symbol rate
+                self._excess_bw, # excess bandwidth (roll-off factor)
+                ntaps)
+
+            self.rrc_filter = filter.pfb_interpolator_ccf(sps,
+                                                          self.rrc_taps)
+
+            delay=(f_len-1)/2
+            self.chunks2symbols.declare_sample_delay(delay)
+            print "Selected interpolator", sps, delay
 
 	# Connect
         self._blocks = [self, self.bytes2chunks]
@@ -330,7 +353,11 @@ class generic_demod(gr.hier_block2):
         for i in range(1,4):
             self.connect((self.time_recov, i), (self,i))
             
-        self.connect((self.receiver, 2), (self,4))
+        self.connect((self.receiver, 2), (self,4)) # phase
+
+        self.connect((self.receiver, 1), blocks.null_sink(gr.sizeof_float))
+        self.connect((self.receiver, 3), blocks.null_sink(gr.sizeof_float))
+        self.connect((self.receiver, 4), blocks.null_sink(gr.sizeof_gr_complex))
         
     def samples_per_symbol(self):
         return self._samples_per_symbol
