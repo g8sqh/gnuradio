@@ -1,0 +1,1 @@
+find gnuradio-runtime gr* volk -name '*.cc*' -o -name '*.h' -o -name '*.py' | xargs etags -a
