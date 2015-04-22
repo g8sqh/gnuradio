@@ -303,10 +303,11 @@ class generic_demod(gr.hier_block2):
         #ntaps = 11 * nfilts
 
         # Automatic gain control
-        self.agc = analog.agc2_cc(0.6e-1, 1e-3, 1, 1)
+        self.agc = analog.agc2_cc(0.6e-1, 1e-3, 1, 1) # delay 0
 
         # Frequency correction
         fll_ntaps = 55
+        # delay on main path 0 - filters control NCO
         self.freq_recov = digital.fll_band_edge_cc(self._samples_per_symbol, self._excess_bw,
                                                    fll_ntaps, self._freq_bw)
 
@@ -315,20 +316,23 @@ class generic_demod(gr.hier_block2):
                                                 1.0, self._excess_bw, ntaps)
 
         # delay:  we have nfilts parallel FIR filter, each with 11*sps taps.....
-        #   output values are generated 1 per symbol, so delay is (11*sps-1)/2
-        #   or 27 output period (
+        # delay is 28 for sps=5... ceil(11*sps/2), wrt input (after decimation!!)
+        # output rate is 1 per symbol
+
         self.time_recov = digital.pfb_clock_sync_ccf(self._samples_per_symbol,
                                                      self._timing_bw, taps,
                                                      nfilts, nfilts//2, self._timing_max_dev)
 
         fmin = -0.25
         fmax = 0.25
+        # delay is 0 - rotates to remove average error, but no delay on data
         self.receiver = digital.constellation_receiver_cb(
             self._constellation.base(), self._phase_bw,
             fmin, fmax)
 
         # Do differential decoding based on phase change of symbols
         if differential:
+            # delay is 1 (output sample)
             self.diffdec = digital.diff_decoder_bb(arity)
 
             
