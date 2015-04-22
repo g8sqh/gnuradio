@@ -159,7 +159,7 @@ class generic_mod(gr.hier_block2):
             # and then create nfilts=sps of them - that's what pfb_interpolator needs
 
             nfilts = sps
-            f_len = 51
+            f_len = 11
             ntaps = nfilts * f_len *1    # make nfilts filters of 11*sps each
 
             self.rrc_taps = filter.firdes.root_raised_cosine(
@@ -300,6 +300,7 @@ class generic_demod(gr.hier_block2):
 
         nfilts = 32
         ntaps = 11 * int(self._samples_per_symbol*nfilts)
+        #ntaps = 11 * nfilts
 
         # Automatic gain control
         self.agc = analog.agc2_cc(0.6e-1, 1e-3, 1, 1)
@@ -312,6 +313,10 @@ class generic_demod(gr.hier_block2):
         # symbol timing recovery with RRC data filter
         taps = filter.firdes.root_raised_cosine(nfilts, nfilts*self._samples_per_symbol,
                                                 1.0, self._excess_bw, ntaps)
+
+        # delay:  we have nfilts parallel FIR filter, each with 11*sps taps.....
+        #   output values are generated 1 per symbol, so delay is (11*sps-1)/2
+        #   or 27 output period (
         self.time_recov = digital.pfb_clock_sync_ccf(self._samples_per_symbol,
                                                      self._timing_bw, taps,
                                                      nfilts, nfilts//2, self._timing_max_dev)
@@ -326,12 +331,20 @@ class generic_demod(gr.hier_block2):
         if differential:
             self.diffdec = digital.diff_decoder_bb(arity)
 
+            
         if self.pre_diff_code:
             self.symbol_mapper = digital.map_bb(
                 mod_codes.invert_code(self._constellation.pre_diff_code()))
 
         # unpack the k bit vector into a stream of bits
         self.unpack = blocks.unpack_k_bits_bb(self.bits_per_symbol())
+        
+        delay=((ntaps/nfilts)-1)/2 + 1 # (1 for the differential)
+
+        #self.agc.declare_sample_delay(self._samples_per_symbol*delay)
+        print "Demod delay", delay
+
+
 
         if verbose:
             self._print_verbage()
